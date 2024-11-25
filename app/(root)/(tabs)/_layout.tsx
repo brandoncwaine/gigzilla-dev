@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TouchableOpacity, View } from 'react-native';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+
+import firestore from '@react-native-firebase/firestore';
 
 export const unstable_settings = {
 	// Ensure any route can link back to `/`
@@ -14,6 +17,7 @@ export default function TabsLayout() {
 	// Set an initializing state whilst Firebase connects
 	const [initializing, setInitializing] = useState(true);
 	const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+	const [isUserPlanner, setIsUserPlanner] = useState(false);
 
 	// Handle user state changes
 	function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
@@ -25,6 +29,19 @@ export default function TabsLayout() {
 		const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
 		return subscriber; // unsubscribe on unmount
 	}, []);
+
+	useEffect(() => {
+		if (!user) return;
+		firestore()
+			.collection('users')
+			.doc(user.uid)
+			.get()
+			.then((doc) => {
+				if (doc.exists) {
+					setIsUserPlanner(doc.data()?.type === 'planner');
+				}
+			});
+	}, [user]);
 
 	if (initializing) return null;
 
@@ -38,22 +55,68 @@ export default function TabsLayout() {
 				name="index"
 				options={{
 					title: 'Dashboard',
-					headerShown: false,
-					tabBarIcon: ({ color }) => (
-						<Ionicons name="grid" color={color} size={24} />
+					headerTitleAlign: 'left',
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon
+							name={focused ? 'grid' : 'grid-outline'}
+							color={color}
+							size={24}
+						/>
 					),
 				}}
 			/>
 			<Tabs.Screen
-				name="calendar"
+				name="messages"
 				options={{
-					title: 'Calendar',
-					headerShown: false,
-					tabBarIcon: ({ color }) => (
-						<Ionicons name="calendar" color={color} size={24} />
+					title: 'Messages',
+					headerTitleAlign: 'left',
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon
+							name={focused ? 'chatbox' : 'chatbox-outline'}
+							color={color}
+							size={24}
+						/>
 					),
 				}}
 			/>
+			{isUserPlanner ? (
+				<Tabs.Screen
+					name="explore"
+					options={{
+						title: 'Search',
+						headerTitleAlign: 'left',
+						tabBarIcon: ({ color, focused }) => (
+							<TabBarIcon
+								name={focused ? 'search' : 'search-outline'}
+								color={color}
+								size={24}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="explore"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
+			<Tabs.Screen
+				name="calendar"
+				options={{
+					title: 'Calendar',
+					headerTitleAlign: 'left',
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon
+							name={focused ? 'calendar' : 'calendar-outline'}
+							color={color}
+							size={24}
+						/>
+					),
+				}}
+			/>
+
 			<Tabs.Screen
 				name="profile"
 				options={{
@@ -68,8 +131,12 @@ export default function TabsLayout() {
 							<Ionicons name="settings-outline" size={24} color={'#222'} />
 						</TouchableOpacity>
 					),
-					tabBarIcon: ({ color }) => (
-						<Ionicons name="person" color={color} size={24} />
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon
+							name={focused ? 'person' : 'person-outline'}
+							color={color}
+							size={24}
+						/>
 					),
 				}}
 			/>

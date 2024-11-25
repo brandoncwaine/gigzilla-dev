@@ -13,13 +13,25 @@ import {
 } from '@/components/common';
 import { useState } from 'react';
 
+const validateEmail = (email: string) => {
+	const re =
+		/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return re.test(String(email).toLowerCase());
+};
+
 export default function CreateAccount() {
 	const [email, setEmail] = useState('testuser@gmail.com');
 
 	const [error, setError] = useState('');
 
 	const onUserAccountCreation = () => {
-		// Check if email is valid too
+		// Check if email is valid
+
+		if (!validateEmail(email)) {
+			setError('Please enter a valid email address');
+			return;
+		}
+
 		router.push({
 			pathname: '/auth/signup/userTypeSelelection',
 			params: {
@@ -37,8 +49,8 @@ export default function CreateAccount() {
 			>
 				<Text style={styles.title}>Create an account.</Text>
 				<Text style={styles.heading}>Let's get started by getting your email</Text>
+				{error && <Text style={styles.error}>{error}</Text>}
 				<Input placeholder="Email" onChangeText={(text) => setEmail(text)} />
-
 				<TextButton text="Next" onPress={onUserAccountCreation} />
 			</KeyboardAvoidingView>
 			<View style={styles.signupContainer}>
@@ -86,5 +98,9 @@ const styles = StyleSheet.create({
 		color: '#666',
 		marginTop: 24,
 		textAlign: 'center',
+	},
+	error: {
+		color: 'red',
+		fontSize: 16,
 	},
 });

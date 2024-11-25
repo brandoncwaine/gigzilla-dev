@@ -12,13 +12,25 @@ const userTypeSelelection = () => {
 	const { email } = useLocalSearchParams();
 
 	const onButtonPress = (type: UserAccountType) => {
-		router.push({
-			pathname: '/auth/signup/artistCategorySelection',
-			params: {
-				email: email,
-				type: type,
-			},
-		});
+		if (type === UserAccountType.Artist) {
+			router.push({
+				pathname: '/auth/signup/artistCategorySelection',
+				params: {
+					email: email,
+					type: type,
+				},
+			});
+			return;
+		} else if (type === UserAccountType.Planner) {
+			router.push({
+				pathname: '/auth/signup/details',
+				params: {
+					email: email,
+					type: type,
+				},
+			});
+			return;
+		}
 	};
 
 	return (
@@ -46,7 +58,7 @@ const userTypeSelelection = () => {
 				</View>
 				<TextButton
 					text="I'm a planner"
-					onPress={() => onButtonPress(UserAccountType.Artist)}
+					onPress={() => onButtonPress(UserAccountType.Planner)}
 				/>
 			</View>
 		</SafeAreaView>

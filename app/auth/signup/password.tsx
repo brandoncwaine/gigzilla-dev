@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import {
 	SafeAreaView,
 	Text,
@@ -20,8 +21,13 @@ import storage from '@react-native-firebase/storage';
 
 export default function CreateAccount() {
 	const firestore = getFirestore();
+
+	const [downloadURL, setDownloadURL] = useState('');
 	const [password, setPassword] = useState('');
 	const [passwordConfirmation, setPasswordConfirmation] = useState('');
+
+	const [accountCreationSuccessful, setAccountCreationSuccessful] =
+		useState(false);
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
@@ -31,36 +37,33 @@ export default function CreateAccount() {
 		type,
 		category,
 		name,
-		imageURI,
+		userImage,
 	}: {
 		email: string;
 		type: string;
 		category: string;
 		name: string;
-		imageURI: string;
+		userImage: string;
 	} = useLocalSearchParams();
 
-	const onUserAccountCreation = async () => {
+	const onUserAccountCreation = () => {
 		setLoading(true);
 
-		const userImageRef = storage().ref(
-			`users/${auth().currentUser?.uid}/profile.jpg`
-		);
+		const userImageRef = `users/${auth().currentUser?.uid}/profile.jpg`;
 
-		const uploadURI =
-			Platform.OS === 'ios' ? imageURI.replace('file://', '') : imageURI;
+		console.log(userImage);
 
-		await auth()
+		auth()
 			.createUserWithEmailAndPassword(email, password)
 			.then((user) => {
 				firestore
 					.collection('users')
-					.doc(auth().currentUser?.uid)
+					.doc(user.user.uid)
 					.set({
 						name: name,
 						type: type,
-						category: category,
-						photoURL: imageURI,
+						category: category ? category : 'null',
+						photoURL: downloadURL,
 						createdAt: new Date(),
 					})
 					.catch((error) => {
@@ -68,9 +71,7 @@ export default function CreateAccount() {
 						setError(error);
 						return;
 					});
-
 				router.replace('/');
-				setLoading(false);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -147,3 +148,10 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 });
+function manipulateAsync(
+	localUri: any,
+	arg1: never[],
+	arg2: { compress: number; format: any; base64: boolean }
+) {
+	throw new Error('Function not implemented.');
+}

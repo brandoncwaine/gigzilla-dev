@@ -15,6 +15,33 @@ export default function RootLayout() {
 					presentation: 'modal',
 				}}
 			/>
+			<Stack.Screen
+				name="userProfile"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
+			<Stack.Screen
+				name="eventDetails"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
+			<Stack.Screen
+				name="chatroom"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
 		</Stack>
 	);
 }

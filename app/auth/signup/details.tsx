@@ -10,6 +10,7 @@ import {
 	Image,
 	TouchableOpacity,
 	Alert,
+	View,
 } from 'react-native';
 
 import {
@@ -20,7 +21,8 @@ import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Details() {
-	const [imageURI, setImageURI] = useState('');
+	const [userImage, setUserImage] =
+		useState<ImagePicker.ImagePickerResult | null>(null);
 	const [name, setName] = useState('');
 
 	const [loading, setLoading] = useState(false);
@@ -41,12 +43,13 @@ export default function Details() {
 		});
 
 		if (!result.canceled) {
-			setImageURI(result.assets[0].uri);
+			setUserImage(result);
 		}
 	};
 
 	const onNextPress = () => {
-		if (!imageURI) {
+		setLoading(true);
+		if (!userImage) {
 			Alert.alert('Please upload a profile image');
 			return;
 		}
@@ -58,9 +61,10 @@ export default function Details() {
 				type: type,
 				category: category,
 				name: name,
-				imageURI: imageURI,
+				userImage: userImage.assets[0].base64,
 			},
 		});
+		setLoading(false);
 	};
 
 	return (
@@ -70,16 +74,21 @@ export default function Details() {
 				style={styles.container}
 				keyboardVerticalOffset={-50}
 			>
-				<TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
-					{imageURI ? (
-						<Image source={{ uri: imageURI }} style={styles.image} />
-					) : (
-						<Ionicons name="image" size={24} color="#ccc" />
-					)}
-				</TouchableOpacity>
-				<Text style={styles.heading}>Upload a photo of yourself or band</Text>
-				<Text style={styles.heading}>What is the name?</Text>
-				<Input placeholder="Name" onChangeText={(text) => setName(text)} />
+				<Text style={styles.title}>Create an account.</Text>
+				<View>
+					<TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
+						{userImage?.assets && userImage?.assets[0].uri ? (
+							<Image source={{ uri: userImage.assets[0].uri }} style={styles.image} />
+						) : (
+							<Ionicons name="image" size={36} color="#555" />
+						)}
+					</TouchableOpacity>
+					<Text style={styles.heading}>Upload a photo of yourself or your band</Text>
+				</View>
+				<View>
+					<Text style={styles.heading}>What your name?</Text>
+					<Input placeholder="Name" onChangeText={(text) => setName(text)} />
+				</View>
 
 				<TextButton text="Next" onPress={onNextPress} disabled={loading} />
 			</KeyboardAvoidingView>
@@ -90,8 +99,8 @@ export default function Details() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: 'center',
 		marginHorizontal: 12,
+		marginTop: 32,
 	},
 	logo: {
 		alignSelf: 'center',

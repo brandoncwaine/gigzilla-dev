@@ -13,12 +13,14 @@ const HEADER_HEIGHT = 400;
 
 type Props = PropsWithChildren<{
 	headerImage: string;
+	headerTitle: string;
 	headerBackgroundColor: { dark: string; light: string };
 }>;
 
 export default function ParallaxScrollView({
 	children,
 	headerImage,
+	headerTitle,
 	headerBackgroundColor,
 }: Props) {
 	const colorScheme = useColorScheme() ?? 'light';
@@ -58,7 +60,7 @@ export default function ParallaxScrollView({
 						]}
 						source={{ uri: headerImage }}
 					></Animated.Image>
-					<Text style={styles.artistName}>The Trash Bananas</Text>
+					<Text style={styles.artistName}>{headerTitle}</Text>
 				</View>
 				<ThemedView style={styles.content}>{children}</ThemedView>
 			</Animated.ScrollView>
