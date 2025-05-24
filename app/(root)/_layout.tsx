@@ -10,36 +10,35 @@ export default function RootLayout() {
 				}}
 			/>
 			<Stack.Screen
-				name="settings"
+				name="(modals)/user"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
+			<Stack.Screen
+				name="(screens)/gigDetails"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
+			<Stack.Screen
+				name="(modals)/requestGig"
 				options={{
 					presentation: 'modal',
+					title: 'Request a gig',
 				}}
 			/>
 			<Stack.Screen
-				name="userProfile"
+				name="(modals)/searchfilter"
 				options={{
-					headerBackTitle: 'Back',
-					headerTintColor: '#fff',
-					headerTransparent: true,
-					headerTitle: '',
-				}}
-			/>
-			<Stack.Screen
-				name="eventDetails"
-				options={{
-					headerBackTitle: 'Back',
-					headerTintColor: '#fff',
-					headerTransparent: true,
-					headerTitle: '',
-				}}
-			/>
-			<Stack.Screen
-				name="chatroom"
-				options={{
-					headerBackTitle: 'Back',
-					headerTintColor: '#fff',
-					headerTransparent: true,
-					headerTitle: '',
+					presentation: 'modal',
+					headerShown: false,
 				}}
 			/>
 		</Stack>

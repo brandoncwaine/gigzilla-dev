@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "1087216533091",
     "project_id": "gigzilla-app",
-    "storage_bucket": "gigzilla-app.appspot.com"
+    "storage_bucket": "gigzilla-app.firebasestorage.app"
   },
   "client": [
     {

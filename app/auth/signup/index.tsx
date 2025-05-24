@@ -1,16 +1,7 @@
 import { router } from 'expo-router';
-import {
-	SafeAreaView,
-	Text,
-	StyleSheet,
-	KeyboardAvoidingView,
-	View,
-} from 'react-native';
+import { SafeAreaView, StyleSheet, KeyboardAvoidingView } from 'react-native';
 
-import {
-	ThemedTextInput as Input,
-	ThemedTextButton as TextButton,
-} from '@/components/common';
+import { View, Text, TextInput, TextButton } from '@/components/themed';
 import { useState } from 'react';
 
 const validateEmail = (email: string) => {
@@ -20,12 +11,16 @@ const validateEmail = (email: string) => {
 };
 
 export default function CreateAccount() {
-	const [email, setEmail] = useState('testuser@gmail.com');
-
+	const [email, setEmail] = useState('');
 	const [error, setError] = useState('');
 
 	const onUserAccountCreation = () => {
 		// Check if email is valid
+
+		if (email === '') {
+			setError('Please enter an email address');
+			return;
+		}
 
 		if (!validateEmail(email)) {
 			setError('Please enter a valid email address');
@@ -41,25 +36,31 @@ export default function CreateAccount() {
 	};
 
 	return (
-		<SafeAreaView style={styles.container}>
+		<View style={styles.container}>
 			<KeyboardAvoidingView
 				behavior="position"
 				style={styles.container}
+				contentContainerStyle={{ gap: 12 }}
 				keyboardVerticalOffset={-50}
 			>
-				<Text style={styles.title}>Create an account.</Text>
-				<Text style={styles.heading}>Let's get started by getting your email</Text>
+				<Text type="title">Create an account.</Text>
+				<Text type="heading">Let's get started by getting your email</Text>
 				{error && <Text style={styles.error}>{error}</Text>}
-				<Input placeholder="Email" onChangeText={(text) => setEmail(text)} />
-				<TextButton text="Next" onPress={onUserAccountCreation} />
+				<TextInput
+					placeholder="Email"
+					onChangeText={(text) => setEmail(text)}
+					autoCapitalize="none"
+					textContentType="emailAddress"
+				/>
+				<TextButton onPress={onUserAccountCreation}>Next</TextButton>
 			</KeyboardAvoidingView>
 			<View style={styles.signupContainer}>
-				<Text style={styles.heading}>Already have an account?</Text>
-				<Text onPress={() => router.push('/auth')} style={styles.link}>
+				<Text type="default">Already have an account?</Text>
+				<Text onPress={() => router.push('/auth')} type="default">
 					Sign in
 				</Text>
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 }
 
@@ -67,7 +68,8 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
-		marginHorizontal: 12,
+		paddingHorizontal: 12,
+		paddingBottom: 48,
 	},
 	logo: {
 		alignSelf: 'center',
@@ -75,29 +77,8 @@ const styles = StyleSheet.create({
 		width: 250,
 		height: 250,
 	},
-	title: {
-		fontSize: 28,
-		fontWeight: 'bold',
-		marginTop: 24,
-	},
-	heading: {
-		fontSize: 16,
-		marginTop: 6,
-		marginBottom: 12,
-	},
-
 	signupContainer: {
 		alignItems: 'center',
-	},
-	link: {
-		fontSize: 16,
-		color: 'blue',
-	},
-	resetPasswordLink: {
-		fontSize: 16,
-		color: '#666',
-		marginTop: 24,
-		textAlign: 'center',
 	},
 	error: {
 		color: 'red',

@@ -1,22 +1,10 @@
-import auth from '@react-native-firebase/auth';
-import storage from '@react-native-firebase/storage';
+import { firebase, uploadBytesResumable } from '@react-native-firebase/storage';
 
-export const UploadImage = async (image: string) => {
-	console.log('Uploading image uri: ', image);
+export const UploadImage = async (path: string, image: string) => {
+	const response = await fetch(image);
+	const blob = await response.blob();
 
-	const userImageRef = 'Image';
+	const reference = firebase.storage().ref().child(path);
 
-	console.log('Uploading image ref: ', userImageRef);
-
-	const fetchedImage = await fetch(image);
-	const blob = await fetchedImage.blob();
-
-	console.log('Blob: ', blob);
-
-	await storage()
-		.ref(userImageRef)
-		.put(blob)
-		.catch((error) => {
-			console.log(error);
-		});
+	return uploadBytesResumable(reference, blob);
 };

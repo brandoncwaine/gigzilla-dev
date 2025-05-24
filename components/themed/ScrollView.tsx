@@ -18,5 +18,11 @@ export function ThemedScrollView({
 		'background'
 	);
 
-	return <ScrollView style={[{ backgroundColor }, style]} {...otherProps} />;
+	return (
+		<ScrollView
+			contentContainerStyle={{ backgroundColor }}
+			style={[{ backgroundColor }, style]}
+			{...otherProps}
+		/>
+	);
 }

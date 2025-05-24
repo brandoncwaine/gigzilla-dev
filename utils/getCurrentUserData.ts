@@ -8,12 +8,11 @@ const getCurrentUserData = () => {
 		return;
 	}
 
-	firestore()
+	return firestore()
 		.collection('users')
 		.doc(user.uid)
 		.get()
 		.then((doc) => {
-			console.log('doc: ', doc);
 			return doc.data();
 		});
 };

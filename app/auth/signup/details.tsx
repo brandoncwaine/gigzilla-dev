@@ -1,30 +1,11 @@
+import { StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
 
-import { ThemedText as Text } from '@/components/common';
-
-import {
-	SafeAreaView,
-	StyleSheet,
-	KeyboardAvoidingView,
-	Image,
-	TouchableOpacity,
-	Alert,
-	View,
-} from 'react-native';
-
-import {
-	ThemedTextInput as Input,
-	ThemedTextButton as TextButton,
-} from '@/components/common';
+import { View, Text, TextInput, TextButton } from '@/components/themed';
 import { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Details() {
-	const [userImage, setUserImage] =
-		useState<ImagePicker.ImagePickerResult | null>(null);
 	const [name, setName] = useState('');
-
 	const [loading, setLoading] = useState(false);
 
 	const {
@@ -33,27 +14,8 @@ export default function Details() {
 		category,
 	}: { email: string; type: string; category: string } = useLocalSearchParams();
 
-	const pickImage = async () => {
-		let result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsEditing: true,
-			aspect: [4, 3],
-			quality: 0.5,
-			allowsMultipleSelection: false,
-		});
-
-		if (!result.canceled) {
-			setUserImage(result);
-		}
-	};
-
 	const onNextPress = () => {
 		setLoading(true);
-		if (!userImage) {
-			Alert.alert('Please upload a profile image');
-			return;
-		}
-
 		router.push({
 			pathname: '/auth/signup/password',
 			params: {
@@ -61,90 +23,40 @@ export default function Details() {
 				type: type,
 				category: category,
 				name: name,
-				userImage: userImage.assets[0].base64,
 			},
 		});
 		setLoading(false);
 	};
 
 	return (
-		<SafeAreaView style={styles.container}>
+		<View style={styles.container}>
 			<KeyboardAvoidingView
 				behavior="position"
-				style={styles.container}
 				keyboardVerticalOffset={-50}
+				style={styles.keyboardAvoidingView}
+				contentContainerStyle={{ gap: 12 }}
 			>
-				<Text style={styles.title}>Create an account.</Text>
-				<View>
-					<TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
-						{userImage?.assets && userImage?.assets[0].uri ? (
-							<Image source={{ uri: userImage.assets[0].uri }} style={styles.image} />
-						) : (
-							<Ionicons name="image" size={36} color="#555" />
-						)}
-					</TouchableOpacity>
-					<Text style={styles.heading}>Upload a photo of yourself or your band</Text>
-				</View>
-				<View>
-					<Text style={styles.heading}>What your name?</Text>
-					<Input placeholder="Name" onChangeText={(text) => setName(text)} />
-				</View>
+				<Text type="heading">What's your name?</Text>
+				<TextInput
+					placeholder="your artist or venue name..."
+					onChangeText={(text) => setName(text)}
+				/>
 
-				<TextButton text="Next" onPress={onNextPress} disabled={loading} />
+				<TextButton onPress={onNextPress} disabled={loading}>
+					Next
+				</TextButton>
 			</KeyboardAvoidingView>
-		</SafeAreaView>
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginHorizontal: 12,
-		marginTop: 32,
+		paddingHorizontal: 12,
 	},
-	logo: {
-		alignSelf: 'center',
-		objectFit: 'contain',
-		width: 250,
-		height: 250,
-	},
-	title: {
-		fontSize: 28,
-		fontWeight: 'bold',
-		marginTop: 24,
-	},
-	heading: {
-		fontSize: 16,
-		marginTop: 6,
-		marginBottom: 12,
-	},
-
-	signupContainer: {
-		alignItems: 'center',
-	},
-	link: {
-		fontSize: 16,
-		color: 'blue',
-	},
-	resetPasswordLink: {
-		fontSize: 16,
-		color: '#666',
-		marginTop: 24,
-		textAlign: 'center',
-	},
-	imagePickerButton: {
-		alignSelf: 'center',
-		aspectRatio: 1,
-		width: '70%',
-		backgroundColor: '#ccc',
-		borderRadius: 8,
-		marginVertical: 24,
+	keyboardAvoidingView: {
+		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
-		overflow: 'hidden',
-	},
-	image: {
-		width: '100%',
-		height: '100%',
 	},
 });

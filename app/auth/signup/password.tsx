@@ -1,23 +1,19 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
 import {
-	SafeAreaView,
-	Text,
 	StyleSheet,
 	KeyboardAvoidingView,
 	Alert,
-	Platform,
+	ActivityIndicator,
 } from 'react-native';
 
-import {
-	ThemedTextInput as Input,
-	ThemedTextButton as TextButton,
-} from '@/components/common';
+import { View, Text, TextInput, TextButton } from '@/components/themed';
 import { useState } from 'react';
 
-import auth from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { getFirestore } from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
+import { UploadImage } from '@/utils/UploadImage';
+
+const DEFAULT_AVATAR = '/assets/images/default-avatar.png';
 
 export default function CreateAccount() {
 	const firestore = getFirestore();
@@ -25,9 +21,6 @@ export default function CreateAccount() {
 	const [downloadURL, setDownloadURL] = useState('');
 	const [password, setPassword] = useState('');
 	const [passwordConfirmation, setPasswordConfirmation] = useState('');
-
-	const [accountCreationSuccessful, setAccountCreationSuccessful] =
-		useState(false);
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
@@ -37,51 +30,82 @@ export default function CreateAccount() {
 		type,
 		category,
 		name,
-		userImage,
 	}: {
 		email: string;
 		type: string;
 		category: string;
 		name: string;
-		userImage: string;
 	} = useLocalSearchParams();
 
-	const onUserAccountCreation = () => {
+	const onUserAccountCreation = async () => {
 		setLoading(true);
 
-		const userImageRef = `users/${auth().currentUser?.uid}/profile.jpg`;
+		if (password !== passwordConfirmation) {
+			setError('*Passwords do not match.');
+			setLoading(false);
+			return;
+		}
 
-		console.log(userImage);
+		try {
+			const userCredential = await auth()
+				.createUserWithEmailAndPassword(email, password)
+				.catch((error) => {
+					if (error.code === 'auth/email-already-in-use') {
+						setError('*Email already in use.');
+					} else if (error.code === 'auth/invalid-email') {
+						setError('*Invalid email.');
+					} else if (error.code === 'auth/operation-not-allowed') {
+						setError('*Operation not allowed.');
+					} else if (error.code === 'auth/network-request-failed') {
+						setError('*We cannot get connected to the internet, please try again.');
+					} else if (error.code === 'auth/weak-password') {
+						setError('*Password is too weak.');
+					} else {
+						setError('*Unknown error occurred.');
+						Alert.alert('Something went wrong', error.message);
+						console.warn(error);
+					}
+					setLoading(false);
+					return null;
+				});
 
-		auth()
-			.createUserWithEmailAndPassword(email, password)
-			.then((user) => {
+			if (!userCredential || !userCredential.user) return;
+
+			const userId = userCredential.user.uid;
+
+			// Create Firestore user and upload image simultaneously
+			await Promise.all([
 				firestore
 					.collection('users')
-					.doc(user.user.uid)
+					.doc(userId)
 					.set({
 						name: name,
 						type: type,
-						category: category ? category : 'null',
+						category: category || 'null',
 						photoURL: downloadURL,
+						gigsPlayed: 0,
+						gigFee: 0,
+						zillaScore: 100,
 						createdAt: new Date(),
-					})
-					.catch((error) => {
-						console.log(error);
-						setError(error);
-						return;
-					});
-				router.replace('/');
-			})
-			.catch((error) => {
-				console.log(error);
+					}),
+			]).catch((error) => {
+				console.error(error);
+				setError('Something went wrong.');
+				return;
 			});
 
-		setLoading(false);
+			// Navigate only after all operations are completed
+			router.replace('/');
+		} catch (error) {
+			console.error(error);
+			setError('Something went wrong.');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
-		<SafeAreaView style={styles.container}>
+		<View style={styles.container}>
 			<KeyboardAvoidingView
 				behavior="position"
 				style={styles.container}
@@ -89,25 +113,22 @@ export default function CreateAccount() {
 			>
 				<Text style={styles.title}>Just one more thing.</Text>
 				<Text style={styles.heading}>Let's set a password for your account.</Text>
-				{error && <Text>{error}</Text>}
-				<Input
+				<Text style={styles.error}>{error}</Text>
+				<TextInput
 					placeholder="Password"
 					onChangeText={(text) => setPassword(text)}
 					secureTextEntry
 				/>
-				<Input
+				<TextInput
 					placeholder="Confirm Password"
 					onChangeText={(text) => setPasswordConfirmation(text)}
 					secureTextEntry
 				/>
-
-				<TextButton
-					text="Create account"
-					onPress={onUserAccountCreation}
-					disabled={loading}
-				/>
+				<TextButton onPress={onUserAccountCreation} disabled={loading}>
+					{loading ? <ActivityIndicator color={'#fff'} /> : 'Create account'}
+				</TextButton>
 			</KeyboardAvoidingView>
-		</SafeAreaView>
+		</View>
 	);
 }
 
@@ -115,7 +136,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
-		marginHorizontal: 12,
+		paddingHorizontal: 12,
 	},
 	logo: {
 		alignSelf: 'center',
@@ -147,11 +168,9 @@ const styles = StyleSheet.create({
 		marginTop: 24,
 		textAlign: 'center',
 	},
+	error: {
+		fontSize: 14,
+		color: 'red',
+		marginTop: 6,
+	},
 });
-function manipulateAsync(
-	localUri: any,
-	arg1: never[],
-	arg2: { compress: number; format: any; base64: boolean }
-) {
-	throw new Error('Function not implemented.');
-}

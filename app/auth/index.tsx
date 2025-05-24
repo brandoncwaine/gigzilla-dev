@@ -1,19 +1,15 @@
 import { router } from 'expo-router';
 import {
-	SafeAreaView,
-	Text,
 	Image,
 	StyleSheet,
 	KeyboardAvoidingView,
-	TouchableOpacity,
-	View,
 	ActivityIndicator,
 } from 'react-native';
 
-import { ThemedTextInput as Input } from '@/components/common';
-import { useState } from 'react';
+import { View, Text, TextButton, TextInput } from '@/components/themed';
+import { useEffect, useState } from 'react';
 
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 
 export default function SignInScreen() {
 	const [loading, setLoading] = useState(false);
@@ -23,21 +19,32 @@ export default function SignInScreen() {
 
 	const handleSignIn = async () => {
 		setLoading(true);
-
 		try {
 			await auth()
 				.signInWithEmailAndPassword(email, password)
 				.then((user) => {
-					router.push('/(root)/(tabs)/');
+					router.push('/(root)/(tabs)');
 				});
 		} catch (error: any) {
-			setError(error.message);
+			if (error.code === 'auth/wrong-password') {
+				setError('*Wrong password.');
+			} else if (error.code === 'auth/invalid-email') {
+				setError('*Invalid email. Please double check your email and try again.');
+			} else if (error.code === 'auth/invalid-credential') {
+				setError('*Incorrect email or password.');
+			}
 		}
 		setLoading(false);
 	};
 
+	useEffect(() => {
+		if (email === '' || password === '') {
+			setError('');
+		}
+	}, [email, password]);
+
 	return (
-		<SafeAreaView style={styles.container}>
+		<View style={styles.container}>
 			<KeyboardAvoidingView
 				behavior="position"
 				style={styles.container}
@@ -45,30 +52,26 @@ export default function SignInScreen() {
 			>
 				<Image source={require('@/assets/images/logo.png')} style={styles.logo} />
 				<Text style={styles.title}>Welcome.</Text>
-				<Text style={styles.heading}>Already got an account? Log in below.</Text>
+				<Text style={styles.heading}>Already have an account? Sign in below.</Text>
 				<Text style={styles.error}>{error}</Text>
-				<Input
+				<TextInput
 					placeholder="Email"
+					keyboardType="email-address"
 					isError={error !== ''}
 					onChangeText={(text) => setEmail(text)}
 				/>
-				<Input
+				<TextInput
 					placeholder="Password"
 					isError={error !== ''}
 					onChangeText={(text) => setPassword(text)}
 					secureTextEntry={true}
 				/>
-				<TouchableOpacity
+				<TextButton
 					onPress={() => handleSignIn()}
-					style={styles.button}
-					disabled={loading}
+					disabled={loading || error !== ''}
 				>
-					{!loading ? (
-						<Text style={styles.buttonText}>Sign in</Text>
-					) : (
-						<ActivityIndicator size="small" color="#fff" />
-					)}
-				</TouchableOpacity>
+					{!loading ? <>Sign in</> : <ActivityIndicator size="small" color="#fff" />}
+				</TextButton>
 			</KeyboardAvoidingView>
 			<View style={styles.signupContainer}>
 				<Text style={styles.heading}>Don't have an account?</Text>
@@ -79,7 +82,7 @@ export default function SignInScreen() {
 			<Text style={styles.resetPasswordLink} onPress={() => {}}>
 				Forgot your password?
 			</Text>
-		</SafeAreaView>
+		</View>
 	);
 }
 
@@ -87,7 +90,8 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
-		marginHorizontal: 12,
+		paddingHorizontal: 12,
+		paddingBottom: 48,
 	},
 	logo: {
 		alignSelf: 'center',
@@ -106,37 +110,16 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 	},
 	error: {
-		fontSize: 16,
+		fontSize: 14,
 		color: 'red',
 		marginTop: 6,
-	},
-	input: {
-		marginVertical: 5,
-		padding: 12,
-		borderWidth: 2,
-		borderColor: '#dedede',
-		borderRadius: 8,
-		fontSize: 16,
-		color: '#000',
-	},
-	button: {
-		paddingHorizontal: 12,
-		paddingVertical: 16,
-		borderRadius: 8,
-		backgroundColor: '#000',
-		color: '#fff',
-	},
-	buttonText: {
-		fontSize: 16,
-		color: '#fff',
-		textAlign: 'center',
 	},
 	signupContainer: {
 		alignItems: 'center',
 	},
 	link: {
 		fontSize: 16,
-		color: 'blue',
+		textDecorationLine: 'underline',
 	},
 	resetPasswordLink: {
 		fontSize: 16,

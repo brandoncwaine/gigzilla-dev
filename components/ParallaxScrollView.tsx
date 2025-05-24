@@ -1,26 +1,29 @@
-import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, useColorScheme, Image, Text, View } from 'react-native';
+import { useEffect, type PropsWithChildren, type ReactElement } from 'react';
+import { StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
 	interpolate,
 	useAnimatedRef,
+	useAnimatedScrollHandler,
 	useAnimatedStyle,
 	useScrollViewOffset,
+	useSharedValue,
 } from 'react-native-reanimated';
 
-import { ThemedView } from '@/components/common';
+import { View } from '@/components/themed';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const HEADER_HEIGHT = 400;
 
 type Props = PropsWithChildren<{
 	headerImage: string;
-	headerTitle: string;
+	overlay: ReactElement;
 	headerBackgroundColor: { dark: string; light: string };
 }>;
 
 export default function ParallaxScrollView({
 	children,
 	headerImage,
-	headerTitle,
+	overlay,
 	headerBackgroundColor,
 }: Props) {
 	const colorScheme = useColorScheme() ?? 'light';
@@ -48,8 +51,21 @@ export default function ParallaxScrollView({
 		};
 	});
 
+	const animatedHeaderBackgroundStyle = useAnimatedStyle(() => {
+		return {
+			backgroundColor: `rgba(0,0,0,${interpolate(
+				scrollOffset.value,
+				[0, 40],
+				[0, 1]
+			)})`,
+		};
+	});
+
 	return (
-		<ThemedView style={styles.container}>
+		<View style={styles.container}>
+			<Animated.View
+				style={[styles.animatedHeaderBackground, animatedHeaderBackgroundStyle]}
+			/>
 			<Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
 				<View style={styles.header}>
 					<Animated.Image
@@ -60,11 +76,18 @@ export default function ParallaxScrollView({
 						]}
 						source={{ uri: headerImage }}
 					></Animated.Image>
-					<Text style={styles.artistName}>{headerTitle}</Text>
+					<LinearGradient
+						colors={['transparent', '#000']}
+						start={{ x: 0, y: 0.2 }}
+						end={{ x: 0, y: 1 }}
+						style={styles.overlay}
+					>
+						{overlay}
+					</LinearGradient>
 				</View>
-				<ThemedView style={styles.content}>{children}</ThemedView>
+				<View style={styles.content}>{children}</View>
 			</Animated.ScrollView>
-		</ThemedView>
+		</View>
 	);
 }
 
@@ -81,12 +104,12 @@ const styles = StyleSheet.create({
 		width: '100%',
 		zIndex: 0,
 	},
-	artistName: {
+	overlay: {
 		position: 'absolute',
-		fontSize: 26,
-		fontWeight: 'bold',
-		color: '#fff',
-		padding: 12,
+		width: '100%',
+		height: '100%',
+		flex: 1,
+		justifyContent: 'flex-end',
 	},
 	content: {
 		flex: 1,
@@ -94,5 +117,14 @@ const styles = StyleSheet.create({
 		paddingTop: 24,
 		gap: 16,
 		zIndex: 5,
+		paddingBottom: 100,
+	},
+	animatedHeaderBackground: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		height: 100, // Adjust height as needed
+		zIndex: 10,
 	},
 });

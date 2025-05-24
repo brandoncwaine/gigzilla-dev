@@ -1,6 +1,4 @@
 import {
-	View,
-	Text,
 	SafeAreaView,
 	StyleSheet,
 	TouchableOpacity,
@@ -8,6 +6,8 @@ import {
 } from 'react-native';
 import React from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
+
+import { View, Text, TextButton } from '@/components/themed';
 
 const artistCategorySelection = () => {
 	const { email, type } = useLocalSearchParams();
@@ -24,23 +24,11 @@ const artistCategorySelection = () => {
 	};
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<View style={styles.container}>
-				<Text style={styles.title}>What type of artist are you?</Text>
-				<TouchableOpacity
-					style={styles.artistCategoryButton}
-					onPress={() => onButtonPress('band')}
-				>
-					<Text style={styles.artistCategoryButtonText}>Band</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.artistCategoryButton}
-					onPress={() => onButtonPress('solo')}
-				>
-					<Text style={styles.artistCategoryButtonText}>Solo Artist</Text>
-				</TouchableOpacity>
-			</View>
-		</SafeAreaView>
+		<View style={styles.container}>
+			<Text type="heading">What type of artist are you?</Text>
+			<TextButton onPress={() => onButtonPress('band')}>Band</TextButton>
+			<TextButton onPress={() => onButtonPress('solo')}>Solo Artist</TextButton>
+		</View>
 	);
 };
 
@@ -48,12 +36,9 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		flexDirection: 'column',
+		justifyContent: 'center',
 		paddingHorizontal: 12,
-	},
-	title: {
-		fontSize: 28,
-		padding: 12,
-		fontWeight: 'bold',
+		gap: 48,
 	},
 	artistCategoryButton: {
 		backgroundColor: '#fafafa',

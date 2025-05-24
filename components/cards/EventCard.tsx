@@ -6,20 +6,22 @@ import {
 	Text,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useEventDetails } from '@/hooks/useEventDetails';
 
-const EventCard = () => {
+type EventCardProps = {
+	eventId: string;
+};
+
+const EventCard = ({ eventId }: EventCardProps) => {
+	const eventDetails = useEventDetails({ eventId: eventId });
+
 	return (
 		<TouchableOpacity
 			onPress={() =>
 				router.push({
 					pathname: '/(root)/eventDetails',
 					params: {
-						id: '1',
-						venueName: 'Bear Cave',
-						date: 'Saturday 10/12/2024',
-						time: '7:00 PM',
-						image:
-							'https://distortedsoundmag.com/wp-content/uploads/2023/05/devplacephotos_heriot-27-800x445.jpg',
+						eventId: eventId,
 					},
 				})
 			}
@@ -27,12 +29,12 @@ const EventCard = () => {
 			<ImageBackground
 				style={styles.upcomingEventsContainer}
 				source={{
-					uri: 'https://distortedsoundmag.com/wp-content/uploads/2023/05/devplacephotos_heriot-27-800x445.jpg',
+					uri: eventDetails?.data?.photoURL,
 				}}
 			>
 				<View style={styles.upcomingEventsInnerContainer}>
-					<Text style={styles.venueName}>Bear Cave</Text>
-					<Text style={styles.eventDate}>Saturday 10/12/2024</Text>
+					<Text style={styles.venueName}>{eventDetails?.data?.name}</Text>
+					<Text style={styles.eventDate}>{eventDetails?.requestedDate}</Text>
 					<Text style={styles.eventTime}>7:00 PM</Text>
 				</View>
 			</ImageBackground>
