@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { Text, TextButton, View } from '@/components/themed';
+import { StyleSheet, View } from 'react-native';
+import { Text, TextButton } from '@/components/themed';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useEventDetails } from '@/hooks/useEventDetails';

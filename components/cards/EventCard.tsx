@@ -19,7 +19,7 @@ const EventCard = ({ eventId }: EventCardProps) => {
 		<TouchableOpacity
 			onPress={() =>
 				router.push({
-					pathname: '/(root)/eventDetails',
+					pathname: '/gigDetails',
 					params: {
 						eventId: eventId,
 					},

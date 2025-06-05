@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Text, TextButton, View } from '@/components/themed';
+import { TextButton, Text } from '@/components/themed';
 
 import { getFirestore } from '@react-native-firebase/firestore';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { getUserAvatar } from '@/utils/getUserAvatar';
 import { Ionicons } from '@expo/vector-icons';
+import { getUserDataFromUID } from '@/utils/getUserDataFromUID';
 
 const ParralaxOverlay = ({ userData }: { userData: any }) => {
 	return (
@@ -24,7 +25,6 @@ const ParralaxOverlay = ({ userData }: { userData: any }) => {
 };
 
 const UserProfileScreen = () => {
-	const firestore = getFirestore();
 	const [profileData, setProfileData] = useState<any>({});
 	const [userAvatar, setUserAvatar] = useState<any>();
 
@@ -32,21 +32,15 @@ const UserProfileScreen = () => {
 
 	const getProfileData = async () => {
 		if (!uid) return;
-
-		const userRef = firestore.collection('users').doc(uid);
-
-		getUserAvatar(uid).then((url) => {
-			setUserAvatar(url);
-		});
-
-		await userRef.get().then((doc) => {
-			setProfileData(doc.data());
-		});
+		const data = getUserDataFromUID(uid);
+		setProfileData(data);
+		console.log('UserDATA: ', data);
+		return data;
 	};
 
 	const onRequestGig = () => {
 		router.push({
-			pathname: '/(root)/(modals)/newGig',
+			pathname: '/(root)/(modals)/requestGig',
 			params: {
 				artistUid: uid,
 			},
@@ -54,12 +48,14 @@ const UserProfileScreen = () => {
 	};
 
 	useEffect(() => {
-		getProfileData();
-	}, []);
+		getUserDataFromUID(uid).then((data) => {
+			setProfileData(data);
+		});
+	}, [uid]);
 
 	return (
 		<ParallaxScrollView
-			headerImage={userAvatar!}
+			headerImage={profileData.photoURL}
 			overlay={<ParralaxOverlay userData={profileData} />}
 			headerBackgroundColor={{
 				dark: '#000',
@@ -67,7 +63,7 @@ const UserProfileScreen = () => {
 			}}
 		>
 			<View style={styles.buttonGroup}>
-				<TextButton onPress={onRequestGig}>Book a gig</TextButton>
+				<TextButton onPress={onRequestGig}>Request a gig</TextButton>
 			</View>
 			<Text type="heading">About us</Text>
 			<Text type="default">

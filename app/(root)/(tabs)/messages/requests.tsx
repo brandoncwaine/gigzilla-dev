@@ -35,6 +35,68 @@ export default function MessageRequests() {
 			});
 	};
 
+	const onAcceptPress = async (
+		senderUID: string,
+		requestedDate: string,
+		gigRequestID: string
+	) => {
+		await Promise.all([
+			firestore()
+				.collection('gigRequests')
+				.doc(gigRequestID)
+				.delete()
+				.then(() => {
+					console.log('Gig request deleted');
+				}),
+
+			firestore().collection('gigs').add({
+				artist: auth().currentUser?.uid,
+				sender: senderUID,
+				requestedDate: requestedDate,
+				timestamp: firestore.FieldValue.serverTimestamp(),
+			}),
+
+			firestore()
+				.collection('messages')
+				.add({
+					sender: senderUID,
+					receiver: auth().currentUser?.uid,
+					content: [
+						{
+							sender: auth().currentUser?.uid,
+							message: 'Your gig request has been accepted!',
+							timestamp: Date.now(),
+						},
+					],
+					timestamp: Date.now(),
+				}),
+		]);
+	};
+
+	const onDeclinePress = async (gigRequestID: string) => {
+		await firestore()
+			.collection('gigRequests')
+			.doc(gigRequestID)
+			.delete()
+			.then(() => {
+				console.log('Gig request deleted');
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+
+		getGigRequests()
+			.then((response) => {
+				console.log(response);
+				setGigRequests(response);
+				setStatus('success');
+			})
+			.catch((error) => {
+				setStatus('error');
+				console.log(error);
+			});
+	};
+
 	useEffect(() => {
 		getGigRequests()
 			.then((response) => {
@@ -53,7 +115,11 @@ export default function MessageRequests() {
 			data={gigRequests}
 			contentContainerStyle={styles.gigRequestList}
 			keyExtractor={(item) => item.id + item.timestamp}
-			ListEmptyComponent={<Text>No gig requests found</Text>}
+			ListEmptyComponent={
+				<Text type="subtitle" style={styles.noGigRequestText}>
+					You don't have any gig requests currently.
+				</Text>
+			}
 			renderItem={({ item }) => (
 				<GigRequestCard
 					gigRequestID={item.id}
@@ -61,6 +127,10 @@ export default function MessageRequests() {
 					senderName={item.senderName}
 					requestedDate={item.requestedDate}
 					timestamp={item.timestamp}
+					onAcceptPress={() =>
+						onAcceptPress(item.senderUID, item.requestedDate.toString(), item.id)
+					}
+					onDeclinePress={() => onDeclinePress(item.id)}
 				/>
 			)}
 		/>
@@ -69,7 +139,11 @@ export default function MessageRequests() {
 
 const styles = StyleSheet.create({
 	gigRequestList: {
-		flex: 1,
 		padding: 16,
+		paddingTop: 32,
+	},
+	noGigRequestText: {
+		textAlign: 'center',
+		paddingTop: 24,
 	},
 });

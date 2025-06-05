@@ -1,10 +1,12 @@
 import { Redirect, Tabs } from 'expo-router';
+import { View, Text } from '@/components/themed';
 
 import { useEffect, useState } from 'react';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import TabsHeader from '@/components/common/TabsHeader';
 
 export const unstable_settings = {
 	// Ensure any route can link back to `/`
@@ -44,6 +46,10 @@ export default function TabsLayout() {
 			screenOptions={{
 				tabBarShowLabel: false,
 				tabBarActiveTintColor: iconColor,
+				headerShadowVisible: false,
+				header: ({ navigation, route, options }) => {
+					return <TabsHeader title={options.title} />;
+				},
 			}}
 		>
 			<Tabs.Screen
@@ -64,7 +70,7 @@ export default function TabsLayout() {
 				name="messages"
 				options={{
 					title: 'Messages',
-					headerTitleAlign: 'left',
+
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon
 							name={focused ? 'chatbox' : 'chatbox-outline'}
@@ -77,7 +83,7 @@ export default function TabsLayout() {
 				name="search"
 				options={{
 					title: 'Search',
-					headerTitleAlign: 'left',
+
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon name={focused ? 'search' : 'search-outline'} color={color} />
 					),
@@ -87,7 +93,7 @@ export default function TabsLayout() {
 				name="calendar"
 				options={{
 					title: 'Calendar',
-					headerTitleAlign: 'left',
+
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon
 							name={focused ? 'calendar' : 'calendar-outline'}
@@ -101,7 +107,6 @@ export default function TabsLayout() {
 				options={{
 					title: 'Profile',
 					headerShown: true,
-					headerTitleAlign: 'left',
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
 					),

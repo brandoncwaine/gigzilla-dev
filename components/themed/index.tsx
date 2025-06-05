@@ -4,6 +4,7 @@ import { ThemedTextButton } from './TextButton';
 import { ThemedTextInput } from './TextInput';
 import { ThemedScrollView } from './ScrollView';
 import { ThemedSettingsButton } from './SettingsButton';
+import { ThemedFlatList } from './Flatlist';
 
 export {
 	ThemedText as Text,
@@ -12,4 +13,5 @@ export {
 	ThemedTextInput as TextInput,
 	ThemedScrollView as ScrollView,
 	ThemedSettingsButton as SettingsButton,
+	ThemedFlatList as FlatList,
 };

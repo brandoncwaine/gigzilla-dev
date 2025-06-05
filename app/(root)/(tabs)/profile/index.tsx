@@ -72,7 +72,7 @@ export default function ProfileScreen() {
 						</Text>
 						<Text type="subtitle">{currentUserData?.email}</Text>
 						<TextButton
-							onPress={() => router.push('/(root)/(modals)/editProfile')}
+							onPress={() => router.push('/(root)/(tabs)/profile/editProfile')}
 							style={styles.editProfileButton}
 						>
 							Edit Profile
@@ -95,7 +95,7 @@ export default function ProfileScreen() {
 								auth()
 									.signOut()
 									.then(() => {
-										router.replace('/');
+										router.replace('/auth');
 									});
 							}}
 						>

@@ -13,16 +13,7 @@ export default function RootLayout() {
 				name="(modals)/user"
 				options={{
 					headerBackTitle: 'Back',
-					headerTintColor: '#fff',
-					headerTransparent: true,
-					headerTitle: '',
-				}}
-			/>
-			<Stack.Screen
-				name="(screens)/gigDetails"
-				options={{
-					headerBackTitle: 'Back',
-					headerTintColor: '#fff',
+					headerTintColor: '#ffffff',
 					headerTransparent: true,
 					headerTitle: '',
 				}}
@@ -39,6 +30,21 @@ export default function RootLayout() {
 				options={{
 					presentation: 'modal',
 					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name="(screens)/gigDetails"
+				options={{
+					headerBackTitle: 'Back',
+					headerTintColor: '#fff',
+					headerTransparent: true,
+					headerTitle: '',
+				}}
+			/>
+			<Stack.Screen
+				name="(screens)/chatroom"
+				options={{
+					headerBackTitle: 'Back',
 				}}
 			/>
 		</Stack>

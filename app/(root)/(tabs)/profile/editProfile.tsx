@@ -76,7 +76,13 @@ const editProfile = () => {
 			</View>
 			<View style={styles.buttonGroup}>
 				<SettingsButton onPress={() => {}} value="None">
-					LinkTree
+					Link 1
+				</SettingsButton>
+				<SettingsButton onPress={() => {}} value="None">
+					Link 2
+				</SettingsButton>
+				<SettingsButton onPress={() => {}} value="None">
+					Link 3
 				</SettingsButton>
 				<SettingsButton onPress={() => {}} value="Genre1, Genre2">
 					Genres

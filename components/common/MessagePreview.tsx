@@ -1,9 +1,16 @@
-import { StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {
+	StyleSheet,
+	TouchableOpacity,
+	Image,
+	useColorScheme,
+} from 'react-native';
 import { View, Text } from '@/components/themed';
 import { router } from 'expo-router';
 
 import { useEffect, useState } from 'react';
 import { getUserDataFromUID } from '@/utils/getUserDataFromUID';
+import { Colors } from '@/constants/Colors';
+import { getAuth } from '@react-native-firebase/auth';
 
 type MessagePreviewProps = {
 	messageID: string;
@@ -11,6 +18,7 @@ type MessagePreviewProps = {
 	message: string;
 	date: string;
 	isSeen: boolean;
+	isFromCurrentUser: boolean;
 };
 
 const MessagePreview = ({
@@ -19,7 +27,10 @@ const MessagePreview = ({
 	message,
 	date,
 	isSeen,
+	isFromCurrentUser = false,
 }: MessagePreviewProps) => {
+	const currentUserUID = getAuth().currentUser?.uid;
+	const messageTextColor = useColorScheme() === 'dark' ? '#999' : '#444';
 	const [senderName, setSenderName] = useState<string>('');
 	const [senderAvatar, setSenderAvatar] = useState<string | null>(null);
 
@@ -32,7 +43,7 @@ const MessagePreview = ({
 
 	const onPress = () => {
 		router.push({
-			pathname: '/(root)/(tabs)/messages/chatroom',
+			pathname: '/(root)/(screens)/chatroom',
 			params: {
 				messageID: messageID,
 				sender: sender,
@@ -42,14 +53,22 @@ const MessagePreview = ({
 		});
 	};
 	return (
-		<TouchableOpacity style={styles.messageContainer} onPress={onPress}>
+		<TouchableOpacity
+			style={styles.container}
+			onPress={onPress}
+			activeOpacity={0.7}
+		>
 			<Image source={{ uri: senderAvatar }} style={styles.avatar} />
-			<View style={styles.messageContent}>
-				<Text style={[styles.sender, !isSeen && { fontWeight: 'bold' }]}>
+			<View style={styles.messageContainer}>
+				<Text type="defaultSemiBold" style={styles.sender} numberOfLines={1}>
 					{senderName}
 				</Text>
-				<Text numberOfLines={1} style={!isSeen && { fontWeight: 'bold' }}>
-					{message}
+				<Text
+					style={[styles.message, { color: messageTextColor }]}
+					numberOfLines={1}
+					ellipsizeMode="tail"
+				>
+					{`${isFromCurrentUser ? 'You: ' : ''}${message}`}
 				</Text>
 			</View>
 		</TouchableOpacity>
@@ -57,7 +76,7 @@ const MessagePreview = ({
 };
 
 const styles = StyleSheet.create({
-	messageContainer: {
+	container: {
 		flexDirection: 'row',
 		gap: 8,
 		borderRadius: 8,
@@ -65,19 +84,14 @@ const styles = StyleSheet.create({
 	avatar: {
 		width: 50,
 		height: 50,
-		borderRadius: 6,
+		borderRadius: 25,
 	},
-	messageContent: {
-		flex: 1,
-		backgroundColor: undefined,
-	},
+	messageContainer: {},
 	sender: {
 		fontSize: 14,
-		fontWeight: 'bold',
-		color: '#000',
 	},
-	seen: {
-		fontWeight: 'bold',
+	message: {
+		fontSize: 12,
 	},
 });
 

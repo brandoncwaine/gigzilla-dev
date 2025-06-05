@@ -6,41 +6,61 @@ import {
 	FlatList,
 	RefreshControl,
 	StyleSheet,
+	useColorScheme,
 } from 'react-native';
 
-import firestore from '@react-native-firebase/firestore';
+import {
+	collection,
+	getDocs,
+	getFirestore,
+	or,
+	orderBy,
+	query,
+	where,
+} from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useCurrentUserData } from '@/hooks/useCurrentUserData';
 
 type TStatus = 'loading' | 'error' | 'success';
 
 const MessagesScreen = () => {
+	const themeColor = useColorScheme();
+	const currentUserUid = auth().currentUser?.uid;
 	const [status, setStatus] = useState<TStatus>('loading');
 	const [messages, setMessages] = useState<any | null>([]);
 
+	const db = getFirestore();
+
 	const getNewMessages = async () => {
-		return await firestore()
-			.collection('messages')
-			.where('receiver', '==', auth().currentUser?.uid)
-			.orderBy('timestamp', 'desc')
-			.get()
-			.then((querySnapshot) => {
-				const messages = querySnapshot.docs.map((doc) => {
-					const mostRecentMessageIndex = doc.data().content.length - 1;
-					return {
-						id: doc.id,
-						sender_uid: doc.data().sender,
-						content: {
-							message: doc.data().content[mostRecentMessageIndex].message,
-							timestamp: doc.data().content[mostRecentMessageIndex].timestamp,
-							sender: doc.data().content[mostRecentMessageIndex].sender,
-						},
-					};
-				});
-				return messages;
-			});
+		const q = query(
+			collection(db, 'messages'),
+			or(
+				where('sender', '==', currentUserUid),
+				where('receiver', '==', currentUserUid)
+			),
+			orderBy('timestamp', 'desc')
+		);
+
+		const querySnapshot = await getDocs(q);
+
+		return querySnapshot.docs.map((doc) => {
+			const mostRecentMessageIndex = doc.data().content.length - 1;
+			return {
+				id: doc.id,
+				sender_uid:
+					doc.data().sender === currentUserUid
+						? doc.data().receiver
+						: doc.data().sender,
+				content: {
+					message: doc.data().content[mostRecentMessageIndex].message,
+					timestamp: doc.data().content[mostRecentMessageIndex].timestamp,
+					sender: doc.data().content[mostRecentMessageIndex].sender,
+				},
+			};
+		});
 	};
 
 	useEffect(() => {
@@ -91,13 +111,16 @@ const MessagesScreen = () => {
 						return (
 							<View style={styles.headerRightContainer}>
 								<Text
-									onPress={() => router.push('/(root)/(modals)/gigRequests')}
+									onPress={() => router.push('/(root)/(tabs)/messages/requests')}
 									style={styles.headerRightButton}
 								>
-									Gig requests
+									Requests
 								</Text>
-
-								<Ionicons name="chevron-forward" size={16} color={'#222'} />
+								<Ionicons
+									name="chevron-forward"
+									size={16}
+									color={themeColor == 'light' ? '#0b0b0b' : '#fff'}
+								/>
 							</View>
 						);
 					}}
@@ -108,6 +131,7 @@ const MessagesScreen = () => {
 							message={item.content.message}
 							date={item.content.timestamp}
 							isSeen={true}
+							isFromCurrentUser={item.content.sender === currentUserUid}
 						/>
 					)}
 				/>
@@ -131,7 +155,6 @@ const styles = StyleSheet.create({
 	},
 	headerRightContainer: {
 		flexDirection: 'row',
-		justifyContent: 'flex-end',
 		alignItems: 'center',
 		gap: 2,
 	},

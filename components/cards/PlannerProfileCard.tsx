@@ -33,7 +33,7 @@ const PlannerProfileCard = ({
 		<TouchableOpacity
 			onPress={() =>
 				router.push({
-					pathname: '/(root)/(modals)/userProfile',
+					pathname: '/(root)/(modals)/user',
 					params: {
 						uid: uid,
 					},

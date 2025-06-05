@@ -15,6 +15,8 @@ type GigRequestCardProps = {
 	senderName: string;
 	requestedDate: FirebaseFirestoreTypes.Timestamp;
 	timestamp: FirebaseFirestoreTypes.Timestamp;
+	onAcceptPress: () => void;
+	onDeclinePress: () => void;
 };
 
 const GigRequestCard = ({
@@ -23,6 +25,8 @@ const GigRequestCard = ({
 	senderName,
 	requestedDate,
 	timestamp,
+	onAcceptPress,
+	onDeclinePress,
 }: GigRequestCardProps) => {
 	const [userAvatar, setUserAvatar] = useState<string | null>();
 	const date = requestedDate.toString().split('T')[0].split('-').join('/');
@@ -32,53 +36,6 @@ const GigRequestCard = ({
 			setUserAvatar(url);
 		});
 	}, []);
-
-	const onAcceptPress = async () => {
-		await Promise.all([
-			firestore()
-				.collection('gigRequests')
-				.doc(gigRequestID)
-				.delete()
-				.then(() => {
-					console.log('Gig request deleted');
-				}),
-
-			firestore().collection('gigs').add({
-				artist: auth().currentUser?.uid,
-				sender: senderUID,
-				requestedDate: requestedDate,
-				timestamp: firestore.FieldValue.serverTimestamp(),
-			}),
-
-			firestore()
-				.collection('messages')
-				.add({
-					sender: senderUID,
-					receiver: auth().currentUser?.uid,
-					content: [
-						{
-							sender: auth().currentUser?.uid,
-							message: 'Your gig request has been accepted!',
-							timestamp: Date.now(),
-						},
-					],
-					timestamp: Date.now(),
-				}),
-		]);
-	};
-
-	const onDeclinePress = async () => {
-		await firestore()
-			.collection('gigRequests')
-			.doc(gigRequestID)
-			.delete()
-			.then(() => {
-				console.log('Gig request deleted');
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
 
 	return (
 		<TouchableOpacity style={styles.container}>

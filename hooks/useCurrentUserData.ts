@@ -19,6 +19,10 @@ export const useCurrentUserData = () => {
 			.collection('users')
 			.doc(auth().currentUser?.uid)
 			.onSnapshot((doc) => {
+				if (!doc.exists) {
+					console.log('No user data found for the current user.');
+					return;
+				}
 				setCurrentUserData(doc.data() as UserData);
 			});
 

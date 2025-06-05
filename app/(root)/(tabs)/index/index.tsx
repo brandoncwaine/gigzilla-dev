@@ -69,7 +69,7 @@ export default function DashboardScreen() {
 					/>
 				}
 			>
-				<Text type="heading">Upcoming Events</Text>
+				<Text type="defaultSemiBold">Upcoming Events</Text>
 				{upcomingEventId !== null ? (
 					<EventCard eventId={upcomingEventId} />
 				) : (
@@ -77,12 +77,16 @@ export default function DashboardScreen() {
 						<Text type="subheading">No upcoming gigs.</Text>
 					</View>
 				)}
-				<Text type="heading">Your Statistics</Text>
-				<StatsCard
-					zillaScore={currentUserData?.zillaScore}
-					gigsPlayed={currentUserData?.gigsPlayed}
-					gigFee={currentUserData?.gigFee}
-				/>
+				{currentUserData?.type == 'artist' && (
+					<>
+						<Text type="heading">Your Statistics</Text>
+						<StatsCard
+							zillaScore={currentUserData?.zillaScore}
+							gigsPlayed={currentUserData?.gigsPlayed}
+							gigFee={currentUserData?.gigFee}
+						/>
+					</>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);

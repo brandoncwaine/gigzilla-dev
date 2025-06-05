@@ -1,15 +1,12 @@
-import { useEffect, type PropsWithChildren, type ReactElement } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { type PropsWithChildren, type ReactElement } from 'react';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 import Animated, {
 	interpolate,
 	useAnimatedRef,
-	useAnimatedScrollHandler,
 	useAnimatedStyle,
 	useScrollViewOffset,
-	useSharedValue,
 } from 'react-native-reanimated';
 
-import { View } from '@/components/themed';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const HEADER_HEIGHT = 400;
@@ -85,7 +82,14 @@ export default function ParallaxScrollView({
 						{overlay}
 					</LinearGradient>
 				</View>
-				<View style={styles.content}>{children}</View>
+				<View
+					style={[
+						styles.content,
+						{ backgroundColor: colorScheme === 'dark' ? '#0b0b0b' : '#fff' },
+					]}
+				>
+					{children}
+				</View>
 			</Animated.ScrollView>
 		</View>
 	);

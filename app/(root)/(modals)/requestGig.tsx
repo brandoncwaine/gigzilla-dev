@@ -29,11 +29,11 @@ export default function NewGigScreen() {
 			.set({
 				sender: auth().currentUser?.uid,
 				artist: artistUid,
-				requestedDate: date,
+				requestedDate: selected,
 				timestamp: new Date().toISOString(),
 			})
 			.then(() => {
-				Alert.alert('Gig request sent!');
+				Alert.alert('Request sent!');
 				router.dismiss();
 			})
 			.catch((error) => {
@@ -79,7 +79,7 @@ export default function NewGigScreen() {
 				/>
 			</View>
 			<TouchableOpacity style={styles.button} onPress={onRequestGig}>
-				<Text style={styles.buttonText}>Send request</Text>
+				<Text style={styles.buttonText}>Start a chat</Text>
 			</TouchableOpacity>
 		</View>
 	);

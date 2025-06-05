@@ -29,7 +29,7 @@ const ArtistProfileCard = ({ uid, name, category }: ArtistProfileCardProps) => {
 		<TouchableOpacity
 			onPress={() =>
 				router.push({
-					pathname: '/(root)/userProfile',
+					pathname: '/(root)/(modals)/user',
 					params: {
 						uid: uid,
 					},
