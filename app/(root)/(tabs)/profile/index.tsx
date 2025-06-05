@@ -1,10 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	Text,
-	ScrollView,
-	SettingsButton,
-	TextButton,
-} from '@/components/themed';
+import { useContext, useEffect, useState } from 'react';
+import { Text, ScrollView, TextButton } from '@/components/themed';
 import { StyleSheet, View } from 'react-native';
 
 import { Image } from 'expo-image';
@@ -12,24 +7,19 @@ import { Image } from 'expo-image';
 import auth from '@react-native-firebase/auth';
 import { router } from 'expo-router';
 
-import { useCurrentUserData } from '@/hooks/useCurrentUserData';
-
 import * as Location from 'expo-location';
 
-import {
-	BottomSheetModal,
-	BottomSheetModalProvider,
-	BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { firebase } from '@react-native-firebase/storage';
-import MapView from 'react-native-maps';
+
 import GigPreferences from '@/components/settings/GigPreferences';
+import { UserDataContext } from '@/contexts/contexts';
 
 export default function ProfileScreen() {
-	const currentUserData = useCurrentUserData();
+	const { userData } = useContext(UserDataContext);
 	const [location, setLocation] = useState();
-	const [gigFee, setGigFee] = useState(currentUserData?.gigFee.toString());
+	const [gigFee, setGigFee] = useState(userData?.gigFee.toString());
 
 	function editUserData(key: string, value: string) {
 		firebase
@@ -60,7 +50,7 @@ export default function ProfileScreen() {
 					<View style={styles.userImageContainer}>
 						<Image
 							source={{
-								uri: currentUserData?.photoURL,
+								uri: userData?.photoURL,
 							}}
 							style={styles.userImage}
 							contentFit="cover"
@@ -68,9 +58,9 @@ export default function ProfileScreen() {
 							placeholder={require('@/assets/images/defaultavatar.png')}
 						/>
 						<Text type="title" style={styles.nameText}>
-							{currentUserData?.name}
+							{userData?.name}
 						</Text>
-						<Text type="subtitle">{currentUserData?.email}</Text>
+						<Text type="subtitle">{userData?.email}</Text>
 						<TextButton
 							onPress={() => router.push('/(root)/(tabs)/profile/editProfile')}
 							style={styles.editProfileButton}

@@ -1,8 +1,4 @@
-import { Redirect, Tabs } from 'expo-router';
-import { View, Text } from '@/components/themed';
-
-import { useEffect, useState } from 'react';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { Tabs } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -14,32 +10,10 @@ export const unstable_settings = {
 };
 
 export default function TabsLayout() {
-	// Auth Context and state
-	const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
-
-	const [initializing, setInitializing] = useState(true);
-
 	const iconColor = useThemeColor(
 		{ light: Colors.light.tint, dark: Colors.dark.tint },
 		'tint'
 	);
-
-	// Handle user state changes
-	function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
-		setUser(user ? user : null); // Set user state
-		setInitializing(false);
-	}
-
-	useEffect(() => {
-		const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-		return subscriber;
-	}, []);
-
-	if (initializing) return;
-
-	if (!user) {
-		return <Redirect href="/auth" />;
-	}
 
 	return (
 		<Tabs

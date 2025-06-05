@@ -1,15 +1,16 @@
-import firestore from '@react-native-firebase/firestore';
+import firestore, { getFirestore } from '@react-native-firebase/firestore';
 import { getStorage } from '@react-native-firebase/storage';
 import { Alert } from 'react-native';
 
 export const getUserDataFromUID = async (uid: string) => {
+	const db = getFirestore();
 	try {
 		// User Avatar
 		const userAvatarRef = getStorage().ref(`users/${uid}/avatar.jpg`);
 
 		const userAvatarDownloadURL = userAvatarRef.getDownloadURL();
 
-		const doc = await firestore().collection('users').doc(uid).get();
+		const doc = await db.collection('users').doc(uid).get();
 		if (doc.exists) {
 			return await userAvatarDownloadURL.then((url) => {
 				return {

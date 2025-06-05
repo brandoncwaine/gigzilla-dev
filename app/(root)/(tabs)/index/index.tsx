@@ -13,10 +13,11 @@ import { EventCard } from '@/components/cards';
 import StatsCard from '@/components/artist/StatsCard';
 import { useCurrentUserData } from '@/hooks/useCurrentUserData';
 
-import firestore, { query } from '@react-native-firebase/firestore';
+import { getFirestore } from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 export default function DashboardScreen() {
+	const db = getFirestore();
 	const [upcomingEventId, setUpcomingEventId] = useState<string | null>(null);
 
 	const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export default function DashboardScreen() {
 	const getUpcomingGig = async () => {
 		if (!auth().currentUser) return;
 
-		firestore()
+		db
 			.collection('gigs')
 			.where('artist', '==', auth().currentUser?.uid)
 			.limit(1)
